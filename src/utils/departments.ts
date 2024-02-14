@@ -1,37 +1,20 @@
+import { LocalStorage } from '@raycast/api'
 import { useCachedState } from '@raycast/utils'
-import { Cache } from '@raycast/api'
 import { BASE_API_URL, HI_BOB_API_KEY } from '../constants'
 import got from 'got'
-import { log } from 'console'
-
-export type DepartmentName =
-    | 'All'
-    | 'People'
-    | 'Finance'
-    | 'Android Engineering'
-    | 'Apple Engineering'
-    | 'Backend Engineering'
-    | 'CXO'
-    | 'Customer Experience'
-    | 'Design'
-    | 'Frontend Engineering'
-    | 'Infrastructure Engineering'
-    | 'Remote'
-    | 'Marketing'
-    | 'Product'
 
 export type Department = {
     id: string
-    name: DepartmentName
-}
-
-export async function getStoredDepartment() {
-    const cache = new Cache()
-    const department = (await cache.get('department')) || 'all'
-    return department as DepartmentName
+    name: string
 }
 
 async function getDepartments() {
+    const stored = await LocalStorage.getItem<string>('departments')
+    if (stored) return JSON.parse(stored) as Department[]
+
+    console.log('////////////////////////')
+    console.log('API REQUEST -fetching departments')
+
     const response = await got
         .get(`${BASE_API_URL}/company/named-lists/department`, {
             responseType: 'json',
@@ -42,13 +25,16 @@ async function getDepartments() {
             },
         })
         .json<{ values: Department[] }>()
-    const departments = response.values.map(({ id, name }) => ({ id, name }))
 
-    return [{ id: '123', name: 'All' }, ...departments] as Department[]
+    const all = { id: '123', name: 'All' }
+    const departments = [all, ...response.values.map(({ id, name }) => ({ id, name }))]
+    LocalStorage.setItem('departments', JSON.stringify(departments))
+
+    return departments as Department[]
 }
 
 function useDepartment() {
-    const [department, setDepartment] = useCachedState<DepartmentName>('department', 'All')
+    const [department, setDepartment] = useCachedState('department', 'All')
 
     return [department, setDepartment] as const
 }

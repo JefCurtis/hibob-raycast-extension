@@ -1,5 +1,6 @@
 import { Calendar } from 'calendar-base'
-import { Out } from '../utils/whos-out'
+import { generateDateValue, getDates } from '../utils/formatter'
+import { PersonWithTimeOffs } from '../utils/people'
 
 export type CalendarDate = {
     day: number
@@ -7,53 +8,39 @@ export type CalendarDate = {
     weekDay: number
     year: number
     selected: boolean
-    siblingMonth?: boolean
-    weekNumber?: number
+    siblingMonth: boolean
+    weekNumber: number
 }
 
-const weekDaysMap: { [key: number]: string } = {
-    0: 'Su',
-    1: 'Mo',
-    2: 'Tu',
-    3: 'We',
-    4: 'Th',
-    5: 'Fr',
-    6: 'Sa',
-}
+const weekDays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
-const calendar = (names?: Out[], date?: Date) => {
-    console.log(`calendar`)
+const generateCalendar = (person: PersonWithTimeOffs, date?: Date) => {
+    console.time('generateCalendar')
+    const { timeOffs, displayName, title } = person
 
-    if (!names || !date) {
+    if (!timeOffs || !date) {
         return ''
     }
 
     const year = date.getUTCFullYear()
     const month = date.getUTCMonth()
-    const day = date.getDate()
-    console.log(`day: `, day)
+    const timeOffDateRanges = timeOffs.flatMap((to) => ({
+        type: to.policyTypeDisplayName,
+        dates: getDates(new Date(to.startDate), new Date(to.endDate)),
+    }))
 
-    const c = new Calendar({ siblingMonths: true, weekNumbers: true })
-    c.setStartDate({ year, month, day })
+    const c = new Calendar({ siblingMonths: true, weekNumbers: true, weekStart: 1 })
+    const today = new Date()
+    c.setStartDate({ year: today.getFullYear(), month: today.getMonth(), day: today.getDate() })
 
-    const calendar = c.getCalendar(year, month).filter(Boolean) as CalendarDate[]
-    const dateIndex = calendar.findIndex((date) => date.selected)
-    const oneWeek = calendar.splice(dateIndex, 7)
+    const calendar = c.getCalendar(year, month) as CalendarDate[]
 
-    const days = oneWeek
-        .map((date) => (date.day === day ? `**${date.day}**` : `${date.day}`))
-        .join(' | ')
+    const days = calendar.map((day) => generateDateValue(day, timeOffDateRanges)).join('')
     const header = date.toLocaleString('en', { month: 'long', year: 'numeric' })
-    const headers = `| name | ${oneWeek.map((date) => weekDaysMap[date.weekDay]).join(' | ')} |`
-    const separator = `|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|`
-    const cells = names
-        .map((item) => {
-            const [firstName, lastName] = item.employeeDisplayName.split(' ')
-            return `| ${firstName} ${lastName?.split('')[0]} | ${days} |`
-        })
-        .join(`\n`)
-
-    return `# ${header}\n${headers}\n${separator}\n${cells}`
+    const headers = `| ${weekDays.join(' | ')} |`
+    const separator = `|:---:|:---:|:---:|:---:|:---:|:---:|:---:|`
+    console.timeEnd('generateCalendar')
+    return `## ${displayName}\n${title}\n ## ${header}\n${headers}\n${separator}\n${days}`
 }
 
-export { calendar }
+export { generateCalendar }

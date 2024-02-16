@@ -1,7 +1,7 @@
 {
     "$schema": "https://www.raycast.com/schemas/extension.json",
     "name": "hibob",
-    "title": "hibob.com",
+    "title": "hibob timeoff view",
     "description": "keep track of who's out of the office",
     "icon": "hibob-logo.svg",
     "author": "JefCurtis",
@@ -10,7 +10,7 @@
         {
             "name": "index",
             "title": "Find who's out",
-            "description": "list who's out for the last 2 weeks",
+            "description": "A calendar view of who's out of the office",
             "mode": "view"
         }
     ],
@@ -19,9 +19,9 @@
             "name": "hibobToken",
             "type": "textfield",
             "required": true,
-            "placeholder": "hibob API Token placeholder",
-            "title": "hibob API Token title",
-            "description": "in order to access the hibob API, you need to provide a valid token"
+            "placeholder": "hibob API Token",
+            "title": "Token",
+            "description": "The scope must include 'request & read who's out' & 'employee fields read'"
         }
     ],
     "dependencies": {

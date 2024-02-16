@@ -1,15 +1,16 @@
 import { List } from '@raycast/api'
 import { useEffect, useState } from 'react'
 import { useCachedPromise } from '@raycast/utils'
-import { getDepartments, useDepartment } from './utils/departments'
+import { getDepartments, useDepartment } from './apis/departments'
 import { CalendarItem } from './components/calendar-item'
-import { PersonWithTimeOffs, fetchPeople } from './utils/people'
+import { PersonWithTimeOffs, fetchPeople } from './apis/people'
 
 export default function Command() {
     const [date, setDate] = useState(new Date())
     const { data: departments } = useCachedPromise(getDepartments, [], {
         keepPreviousData: true,
     })
+
     const [department, setDepartment] = useDepartment()
     const [people, setPeople] = useState<PersonWithTimeOffs[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -18,8 +19,6 @@ export default function Command() {
         const fetchData = async () => {
             setIsLoading(true)
             const list = await fetchPeople(date, department)
-            console.log(`list.length: `, list.length)
-
             setPeople(list)
             setIsLoading(false)
         }

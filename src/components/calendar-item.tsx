@@ -1,17 +1,16 @@
-import { Action, ActionPanel, Cache, Color, Icon, List, LocalStorage } from '@raycast/api'
-import { generateCalendar } from './calendar'
+import {
+    Action,
+    ActionPanel,
+    Cache,
+    Color,
+    Icon,
+    List,
+    LocalStorage,
+    useNavigation,
+} from '@raycast/api'
+import { generateCalendar } from '../utils/calendar'
 import { addMonths } from 'date-fns'
-import { PersonWithTimeOffs } from '../utils/people'
-
-export type CalendarDate = {
-    day: number
-    month: number
-    weekDay: number
-    year: number
-    selected: boolean
-    siblingMonth?: boolean
-    weekNumber?: number
-}
+import { PersonWithTimeOffs } from '../apis/people'
 
 const CalendarItem = ({
     person,
@@ -22,8 +21,7 @@ const CalendarItem = ({
     date: Date
     setDate: (date: Date) => void
 }) => {
-    console.log('CalendarItme')
-
+    const { pop } = useNavigation()
     const header = date.toLocaleString('en', { month: 'long', year: 'numeric' })
 
     return (
@@ -36,7 +34,7 @@ const CalendarItem = ({
                         <Action
                             title="Next Month"
                             shortcut={{ modifiers: [], key: 'arrowRight' }}
-                            icon={{ source: { dark: 'right-dark.png', light: 'right.png' } }}
+                            icon={Icon.Calendar}
                             onAction={() => {
                                 setDate(addMonths(date, 1))
                             }}
@@ -44,10 +42,14 @@ const CalendarItem = ({
                         <Action
                             title="Previous Month"
                             shortcut={{ modifiers: [], key: 'arrowLeft' }}
-                            icon={{ source: { dark: 'left-dark.png', light: 'left.png' } }}
+                            icon={Icon.Calendar}
                             onAction={() => {
                                 setDate(addMonths(date, -1))
                             }}
+                        />
+                        <Action.OpenInBrowser
+                            title="Open in Hibob"
+                            url="https://app.hibob.com/time-off/peoples-time-off/calendar"
                         />
                     </ActionPanel.Section>
                     <ActionPanel.Section title="Calendar">
@@ -58,6 +60,7 @@ const CalendarItem = ({
                                 LocalStorage.clear()
                                 const cache = new Cache()
                                 cache.clear()
+                                pop()
                             }}
                         />
                     </ActionPanel.Section>

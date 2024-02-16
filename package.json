@@ -1,40 +1,50 @@
 {
-  "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "hibob",
-  "title": "hibob",
-  "description": "keep track of who's out of the office",
-  "icon": "command-icon.png",
-  "author": "JefCurtis",
-  "license": "MIT",
-  "commands": [
-    {
-      "name": "index",
-      "title": "Wallchart",
-      "description": "list who's out for the last 2 weeks",
-      "mode": "view"
+    "$schema": "https://www.raycast.com/schemas/extension.json",
+    "name": "hibob",
+    "title": "hibob.com",
+    "description": "keep track of who's out of the office",
+    "icon": "hibob-logo.svg",
+    "author": "JefCurtis",
+    "license": "MIT",
+    "commands": [
+        {
+            "name": "index",
+            "title": "Find who's out",
+            "description": "list who's out for the last 2 weeks",
+            "mode": "view"
+        }
+    ],
+    "preferences": [
+        {
+            "name": "hibobToken",
+            "type": "textfield",
+            "required": true,
+            "placeholder": "hibob API Token placeholder",
+            "title": "hibob API Token title",
+            "description": "in order to access the hibob API, you need to provide a valid token"
+        }
+    ],
+    "dependencies": {
+        "@raycast/api": "^1.67.1",
+        "@raycast/utils": "1.12.4",
+        "calendar": "0.1.1",
+        "calendar-base": "2.0.1",
+        "date-fns": "3.3.1",
+        "got": "12.5.3"
+    },
+    "devDependencies": {
+        "@raycast/eslint-config": "^1.0.6",
+        "@types/node": "20.8.10",
+        "@types/react": "18.2.27",
+        "eslint": "^8.51.0",
+        "prettier": "^3.0.3",
+        "typescript": "^5.2.2"
+    },
+    "scripts": {
+        "build": "ray build -e dist",
+        "dev": "ray develop",
+        "fix-lint": "ray lint --fix",
+        "lint": "ray lint",
+        "publish": "npx @raycast/api@latest publish"
     }
-  ],
-  "dependencies": {
-    "@raycast/api": "^1.67.1",
-    "@raycast/utils": "1.12.4",
-    "calendar": "0.1.1",
-    "calendar-base": "2.0.1",
-    "date-fns": "3.3.1",
-    "got": "12.5.3"
-  },
-  "devDependencies": {
-    "@raycast/eslint-config": "^1.0.6",
-    "@types/node": "20.8.10",
-    "@types/react": "18.2.27",
-    "eslint": "^8.51.0",
-    "prettier": "^3.0.3",
-    "typescript": "^5.2.2"
-  },
-  "scripts": {
-    "build": "ray build -e dist",
-    "dev": "ray develop",
-    "fix-lint": "ray lint --fix",
-    "lint": "ray lint",
-    "publish": "npx @raycast/api@latest publish"
-  }
 }

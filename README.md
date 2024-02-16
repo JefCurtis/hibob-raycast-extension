@@ -19,7 +19,7 @@ Make sure it's scoped to include:
 1. Clone the repository locally
 2. Open Raycast and search for "Import Extension"
 3. Select the cloned projects folder and import it and press enter
-4. You'll need to build it before you can use it for first time. `npm run build`
+4. You'll need to build it before you can use it for first time. `npm install && pm run build`
 
 At the point you should be able to add your API token run the extension 🎉
 But of course, you can also contribute to the extension by adding new features or fixing bugs!

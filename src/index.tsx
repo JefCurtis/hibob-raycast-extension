@@ -45,8 +45,8 @@ export default function Command() {
                 </List.Dropdown>
             }
         >
-            {people?.map((person, i) => (
-                <CalendarItem key={i} setDate={setDate} person={person} date={date} />
+            {people?.map((person) => (
+                <CalendarItem key={person.id} setDate={setDate} person={person} date={date} />
             ))}
         </List>
     )

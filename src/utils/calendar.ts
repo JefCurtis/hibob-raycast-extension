@@ -1,4 +1,5 @@
 import { Calendar, CalendarDate } from 'calendar-base'
+import { parseISO } from 'date-fns'
 import { generateDateValue, getDatesInclusive } from './formatter'
 import { PersonWithTimeOffs } from '../apis/people'
 
@@ -15,7 +16,7 @@ const generateCalendar = (person: PersonWithTimeOffs, date?: Date) => {
     const month = date.getUTCMonth()
     const timeOffDateRanges = timeOffs.map((to) => ({
         type: to.policyTypeDisplayName,
-        dates: getDatesInclusive(new Date(to.startDate), new Date(to.endDate)),
+        dates: getDatesInclusive(parseISO(to.startDate), parseISO(to.endDate)),
     }))
 
     const c = new Calendar({ siblingMonths: true, weekNumbers: true, weekStart: 1 })

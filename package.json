@@ -16,12 +16,18 @@
     ],
     "preferences": [
         {
-            "name": "hibobToken",
+            "name": "hibobServiceUserId",
             "type": "textfield",
             "required": true,
-            "placeholder": "hibob API Token",
-            "title": "Token",
-            "description": "The scope must include 'request & read who's out' & 'employee fields read'"
+            "title": "Service User ID",
+            "description": "HiBob Service User ID used for Basic auth"
+        },
+        {
+            "name": "hibobServiceUserToken",
+            "type": "password",
+            "required": true,
+            "title": "Service User Token",
+            "description": "HiBob Service User Token used for Basic auth. Scope must include 'request & read who's out' & 'employee fields read'"
         }
     ],
     "dependencies": {

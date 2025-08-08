@@ -11,6 +11,7 @@ import {
 import { generateCalendar } from '../utils/calendar'
 import { addMonths } from 'date-fns'
 import { PersonWithTimeOffs } from '../apis/people'
+import { getAllDiscoveredTypes, clearDiscoveredTypes } from '../utils/time-off-types'
 
 const CalendarItem = ({
     person,
@@ -54,6 +55,15 @@ const CalendarItem = ({
                     </ActionPanel.Section>
                     <ActionPanel.Section title="Calendar">
                         <Action
+                            icon={{ source: Icon.List, tintColor: Color.Blue }}
+                            title="View Discovered Time-Off Types"
+                            onAction={async () => {
+                                const types = await getAllDiscoveredTypes()
+                                const summary = types.map(t => `${t.emoji} ${t.type} (seen ${t.count} times)`).join('\n')
+                                console.log('📊 Discovered Time-Off Types:\n' + summary)
+                            }}
+                        />
+                        <Action
                             icon={{ source: Icon.Trash, tintColor: Color.Red }}
                             title="Clear Cache and Refresh"
                             onAction={() => {
@@ -61,6 +71,14 @@ const CalendarItem = ({
                                 const cache = new Cache()
                                 cache.clear()
                                 pop()
+                            }}
+                        />
+                        <Action
+                            icon={{ source: Icon.Trash, tintColor: Color.Orange }}
+                            title="Clear Discovered Types"
+                            onAction={async () => {
+                                await clearDiscoveredTypes()
+                                console.log('🗑️ Cleared all discovered time-off types')
                             }}
                         />
                     </ActionPanel.Section>

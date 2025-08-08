@@ -12,6 +12,12 @@
             "title": "Find who's out",
             "description": "A calendar view of who's out of the office",
             "mode": "view"
+        },
+        {
+            "name": "manage-emojis",
+            "title": "Manage Time-Off Emojis",
+            "description": "Customize emoji mappings for time-off types",
+            "mode": "view"
         }
     ],
     "preferences": [

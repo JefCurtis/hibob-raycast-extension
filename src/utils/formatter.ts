@@ -1,5 +1,6 @@
 import { CalendarDate } from 'calendar-base'
 import { addDays } from 'date-fns'
+import { recordTimeOffType } from './time-off-types'
 
 const getDatesInclusive = (startDate: Date, endDate: Date) => {
     const dates = []
@@ -35,19 +36,8 @@ function generateDateValue(day: CalendarDate, offTimes: { type: string; dates: D
         content = `**${day.day}**`
     }
 
-    switch (matchingTimeOff?.type) {
-        case 'Conference/Course/Training':
-            content = '📚'
-            break
-        case 'Vacation & National Holidays':
-            content = '🏖️'
-            break
-        case 'Company Travel':
-            content = '✈️'
-            break
-        case 'Health Day':
-            content = '🤒'
-            break
+    if (matchingTimeOff) {
+        content = recordTimeOffType(matchingTimeOff.type)
     }
 
     if (day.siblingMonth) {

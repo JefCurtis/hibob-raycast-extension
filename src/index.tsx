@@ -4,6 +4,7 @@ import { useCachedPromise } from '@raycast/utils'
 import { getDepartments, useDepartment } from './apis/departments'
 import { CalendarItem } from './components/calendar-item'
 import { PersonWithTimeOffs, fetchPeople } from './apis/people'
+import { initializeCache } from './utils/time-off-types'
 
 export default function Command() {
     const [date, setDate] = useState(new Date())
@@ -14,6 +15,11 @@ export default function Command() {
     const [department, setDepartment] = useDepartment()
     const [people, setPeople] = useState<PersonWithTimeOffs[]>([])
     const [isLoading, setIsLoading] = useState(true)
+
+    // Initialize emoji cache on component mount
+    useEffect(() => {
+        initializeCache()
+    }, [])
 
     useEffect(() => {
         const fetchData = async () => {

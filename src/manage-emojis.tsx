@@ -2,11 +2,11 @@ import {
     Action, 
     ActionPanel, 
     Color, 
-    Form, 
+    Form,
     Icon, 
     List, 
     Toast, 
-    popToRoot, 
+    popToRoot,
     showToast, 
     useNavigation 
 } from '@raycast/api'
@@ -18,102 +18,8 @@ import {
     type TimeOffTypeMapping 
 } from './utils/time-off-types'
 
-// Popular emoji options for quick selection
-const EMOJI_OPTIONS = [
-    '🏖️', '🤒', '👶', '📚', '✈️', '🏠', '🖤', '🚨', '⚖️', '🪖', 
-    '💸', '🌅', '🤝', '⏰', '📅', '🎯', '💼', '🎉', '🔧', '📞',
-    '🏥', '🚗', '🏢', '🎓', '🍽️', '💻', '🎨', '🏃', '🧘', '🎵'
-]
-
-function EmojiPicker({ 
-    timeOffType, 
-    currentEmoji, 
-    onSelect 
-}: { 
-    timeOffType: string
-    currentEmoji: string
-    onSelect: (emoji: string) => void 
-}) {
-    const { pop } = useNavigation()
-    const [customEmoji, setCustomEmojiInput] = useState(currentEmoji)
-
-    return (
-        <List
-            navigationTitle={`Select Emoji for "${timeOffType}"`}
-            searchBarPlaceholder="Search emojis..."
-        >
-            <List.Section title="Quick Options">
-                {EMOJI_OPTIONS.map((emoji) => (
-                    <List.Item
-                        key={emoji}
-                        title={emoji}
-                        subtitle={emoji === currentEmoji ? 'Current' : ''}
-                        icon={{ source: emoji === currentEmoji ? Icon.Check : Icon.Circle }}
-                        actions={
-                            <ActionPanel>
-                                <Action
-                                    title="Select This Emoji"
-                                    onAction={async () => {
-                                        onSelect(emoji)
-                                        await showToast({ 
-                                            style: Toast.Style.Success, 
-                                            title: `Set ${emoji} for "${timeOffType}"` 
-                                        })
-                                        pop()
-                                    }}
-                                />
-                            </ActionPanel>
-                        }
-                    />
-                ))}
-            </List.Section>
-            
-            <List.Section title="Custom Emoji">
-                <List.Item
-                    title="Enter Custom Emoji"
-                    subtitle="Type any emoji"
-                    icon={Icon.Pencil}
-                    actions={
-                        <ActionPanel>
-                            <Action.Push
-                                title="Enter Custom Emoji"
-                                target={
-                                    <Form
-                                        navigationTitle="Custom Emoji"
-                                        actions={
-                                            <ActionPanel>
-                                                <Action.SubmitForm
-                                                    title="Save Custom Emoji"
-                                                    onSubmit={async (values: { emoji: string }) => {
-                                                        if (values.emoji) {
-                                                            onSelect(values.emoji)
-                                                            await showToast({ 
-                                                                style: Toast.Style.Success, 
-                                                                title: `Set ${values.emoji} for "${timeOffType}"` 
-                                                            })
-                                                            popToRoot()
-                                                        }
-                                                    }}
-                                                />
-                                            </ActionPanel>
-                                        }
-                                    >
-                                        <Form.TextField
-                                            id="emoji"
-                                            title="Custom Emoji"
-                                            placeholder="Enter any emoji..."
-                                            defaultValue={customEmoji}
-                                        />
-                                    </Form>
-                                }
-                            />
-                        </ActionPanel>
-                    }
-                />
-            </List.Section>
-        </List>
-    )
-}
+// Predefined emoji options
+const PREDEFINED_EMOJIS = ['🏖️', '🤒', '👶', '📚', '✈️', '🏠', '🚨', '⚖️', '🪖', '💸', '🌅', '🤝', '⏰', '📅', '🎯', '💼', '🎉', '🔧', '📞']
 
 export default function ManageEmojis() {
     const [discoveredTypes, setDiscoveredTypes] = useState<TimeOffTypeMapping[]>([])
@@ -169,11 +75,91 @@ export default function ManageEmojis() {
                                     title="Change Emoji"
                                     icon={Icon.Pencil}
                                     target={
-                                        <EmojiPicker
-                                            timeOffType={type.type}
-                                            currentEmoji={type.emoji}
-                                            onSelect={(emoji) => handleEmojiChange(type.type, emoji)}
-                                        />
+                                        <Form
+                                            navigationTitle={`Select Emoji for "${type.type}"`}
+                                            actions={
+                                                <ActionPanel>
+                                                                                                    <Action.SubmitForm
+                                                    title="Save Emoji"
+                                                    onSubmit={async (values: { emoji: string; customEmoji: string }) => {
+                                                        let selectedEmoji: string
+                                                        
+                                                        if (values.emoji === 'custom') {
+                                                            if (!values.customEmoji || values.customEmoji.trim() === '') {
+                                                                await showToast({ 
+                                                                    style: Toast.Style.Failure, 
+                                                                    title: 'Please enter a custom emoji' 
+                                                                })
+                                                                return
+                                                            }
+                                                            selectedEmoji = values.customEmoji.trim()
+                                                        } else {
+                                                            selectedEmoji = values.emoji
+                                                        }
+                                                        
+                                                        if (selectedEmoji) {
+                                                            await handleEmojiChange(type.type, selectedEmoji)
+                                                            await showToast({ 
+                                                                style: Toast.Style.Success, 
+                                                                title: `Set ${selectedEmoji} for "${type.type}"` 
+                                                            })
+                                                            popToRoot()
+                                                        }
+                                                    }}
+                                                />
+                                                </ActionPanel>
+                                            }
+                                        >
+                                            <Form.Dropdown
+                                                id="emoji"
+                                                title="Emoji (enter to search)"
+                                                placeholder="Enter to search"
+                                                defaultValue={
+                                                    PREDEFINED_EMOJIS.includes(type.emoji) 
+                                                        ? type.emoji 
+                                                        : 'custom'
+                                                }
+                                                info="Select a popular emoji or choose 'Custom' to enter any emoji"
+                                            >
+                                                <Form.Dropdown.Section title="Custom">
+                                                    <Form.Dropdown.Item value="custom" title="✏️  Use Custom Emoji" />
+                                                </Form.Dropdown.Section>
+                                                
+                                                <Form.Dropdown.Section title="Popular Emojis">
+                                                    <Form.Dropdown.Item value="🏖️" title="🏖️  Beach/Vacation" />
+                                                    <Form.Dropdown.Item value="🤒" title="🤒  Sick/Health" />
+                                                    <Form.Dropdown.Item value="👶" title="👶  Parental/Baby" />
+                                                    <Form.Dropdown.Item value="📚" title="📚  Training/Conference" />
+                                                    <Form.Dropdown.Item value="✈️" title="✈️  Travel" />
+                                                    <Form.Dropdown.Item value="🏠" title="🏠  Remote/Home" />
+                                                    <Form.Dropdown.Item value="🚨" title="🚨  Emergency" />
+                                                    <Form.Dropdown.Item value="⚖️" title="⚖️  Legal" />
+                                                    <Form.Dropdown.Item value="🪖" title="🪖  Military" />
+                                                    <Form.Dropdown.Item value="💸" title="💸  Personal" />
+                                                    <Form.Dropdown.Item value="🌅" title="🌅  Mental Health" />
+                                                    <Form.Dropdown.Item value="🤝" title="🤝  Volunteer" />
+                                                    <Form.Dropdown.Item value="⏰" title="⏰  Comp Time" />
+                                                    <Form.Dropdown.Item value="📅" title="📅  General" />
+                                                    <Form.Dropdown.Item value="🎯" title="🎯  Personal Goal" />
+                                                    <Form.Dropdown.Item value="💼" title="💼  Business" />
+                                                    <Form.Dropdown.Item value="🎉" title="🎉  Celebration" />
+                                                    <Form.Dropdown.Item value="🔧" title="🔧  Maintenance" />
+                                                    <Form.Dropdown.Item value="📞" title="📞  Communication" />
+                                                </Form.Dropdown.Section>
+                                            </Form.Dropdown>
+                                            
+                                            <Form.TextField
+                                                id="customEmoji"
+                                                title="Custom Emoji (select custom above)"
+                                                placeholder="paste your custom emoji here"
+                                                defaultValue={
+                                                    PREDEFINED_EMOJIS.includes(type.emoji) 
+                                                        ? '' 
+                                                        : type.emoji
+                                                }
+                                                info="Only used if 'Custom Emoji...' is selected above"
+                                            />
+                                        </Form>
                                     }
                                 />
                                 <ActionPanel.Section>

@@ -1,6 +1,6 @@
 import { CalendarDate } from 'calendar-base'
 import { addDays } from 'date-fns'
-import { recordTimeOffType } from './time-off-types'
+import { getEmojiForType } from './time-off-types'
 
 const getDatesInclusive = (startDate: Date, endDate: Date) => {
     const dates = []
@@ -37,7 +37,7 @@ function generateDateValue(day: CalendarDate, offTimes: { type: string; dates: D
     }
 
     if (matchingTimeOff) {
-        content = recordTimeOffType(matchingTimeOff.type)
+        content = getEmojiForType(matchingTimeOff.type)
     }
 
     if (day.siblingMonth) {

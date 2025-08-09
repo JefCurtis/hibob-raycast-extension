@@ -190,6 +190,7 @@ async function clearDiscoveredTypes(): Promise<void> {
 
 export { 
     recordTimeOffTypeSync as recordTimeOffType, 
+    recordTimeOffTypeAsync,
     getAllDiscoveredTypes, 
     clearDiscoveredTypes, 
     getEmojiForType,

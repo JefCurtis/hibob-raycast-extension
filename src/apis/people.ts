@@ -3,6 +3,7 @@ import { getDepartments } from './departments'
 import { getWorkTitles } from './work-titles'
 import { HibobApi } from '../types'
 import { fetch } from './fetch'
+import { recordTimeOffTypeAsync, getEmojiForType } from '../utils/time-off-types'
 
 type PersonWithTimeOffs = {
     id: string
@@ -48,6 +49,15 @@ async function fetchPeople(date: Date, department = 'All') {
         getTimeOffInfo(date),
         getPeople(),
     ])
+
+    // Batch record all unique time-off types in background (performance optimization)
+    const uniqueTimeOffTypes = new Set(OOO.map(timeOff => timeOff.policyTypeDisplayName))
+    uniqueTimeOffTypes.forEach(type => {
+        const emoji = getEmojiForType(type)
+        recordTimeOffTypeAsync(type, emoji).catch(err => 
+            console.warn('Failed to record time-off type:', type, err)
+        )
+    })
 
     const deptById = new Map(departments.map((d) => [d.id, d.name]))
     const titleById = new Map(titles.map((t) => [t.id, t.name]))

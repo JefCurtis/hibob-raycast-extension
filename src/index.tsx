@@ -1,5 +1,5 @@
 import { List } from '@raycast/api'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useCachedPromise } from '@raycast/utils'
 import { getDepartments, useDepartment } from './apis/departments'
 import { CalendarItem } from './components/calendar-item'
@@ -13,7 +13,7 @@ export default function Command() {
     })
 
     const [department, setDepartment] = useDepartment()
-    const [people, setPeople] = useState<PersonWithTimeOffs[]>([])
+    const [allPeople, setAllPeople] = useState<PersonWithTimeOffs[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
     // Initialize emoji cache on component mount
@@ -21,15 +21,22 @@ export default function Command() {
         initializeCache()
     }, [])
 
+    // Fetch ALL people data only when date changes (not department)
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true)
-            const list = await fetchPeople(date, department)
-            setPeople(list)
+            const list = await fetchPeople(date, 'All') // Always fetch all people
+            setAllPeople(list)
             setIsLoading(false)
         }
         fetchData()
-    }, [date, department])
+    }, [date]) // Remove department from dependency array
+
+    // Filter people by department client-side (instant)
+    const filteredPeople = useMemo(() => {
+        if (department === 'All') return allPeople
+        return allPeople.filter(person => person.department === department)
+    }, [allPeople, department])
 
     return (
         <List
@@ -51,7 +58,7 @@ export default function Command() {
                 </List.Dropdown>
             }
         >
-            {people?.map((person) => (
+            {filteredPeople?.map((person) => (
                 <CalendarItem key={person.id} setDate={setDate} person={person} date={date} />
             ))}
         </List>

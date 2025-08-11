@@ -1,39 +1,11 @@
 import { LocalStorage } from '@raycast/api'
+import { DEFAULT_EMOJI_MAP } from './emojis'
 
-// Collection of discovered time-off types
 const TIME_OFF_TYPES_KEY = 'discovered-time-off-types'
 const CUSTOM_EMOJIS_KEY = 'custom-emoji-mappings'
 
-// Cache for synchronous access
 let customEmojiCache: CustomEmojiMapping = {}
 let cacheInitialized = false
-
-// Default emoji mapping based on keyword matching
-const defaultEmojiMap: Record<string, string> = {
-    'vacation': '🏖️',
-    'holiday': '🏖️',
-    'sick': '🤒',
-    'health': '🤒',
-    'conference': '📚',
-    'training': '📚',
-    'course': '📚',
-    'travel': '✈️',
-    'company travel': '✈️',
-    'personal': '🏠',
-    'bereavement': '🖤',
-    'maternity': '👶',
-    'paternity': '👶',
-    'parental': '👶',
-    'adoptive': '👶',
-    'emergency': '🚨',
-    'jury duty': '⚖️',
-    'military': '🪖',
-    'unpaid': '💸',
-    'sabbatical': '🌅',
-    'volunteer': '🤝',
-    'comp time': '⏰',
-    'floating': '📅',
-}
 
 type TimeOffTypeMapping = {
     type: string
@@ -117,12 +89,12 @@ function getEmojiForType(type: string): string {
     const normalizedType = type.toLowerCase()
     
     // First check for exact matches
-    if (defaultEmojiMap[normalizedType]) {
-        return defaultEmojiMap[normalizedType]
+    if (DEFAULT_EMOJI_MAP[normalizedType]) {
+        return DEFAULT_EMOJI_MAP[normalizedType]
     }
     
     // Then check for partial matches using keywords
-    for (const [keyword, emoji] of Object.entries(defaultEmojiMap)) {
+    for (const [keyword, emoji] of Object.entries(DEFAULT_EMOJI_MAP)) {
         if (normalizedType.includes(keyword)) {
             return emoji
         }
@@ -143,12 +115,12 @@ function recordTimeOffTypeSync(type: string): string {
     const emoji = customEmoji || getEmojiForType(type)
     
     // Store asynchronously in the background
-    recordTimeOffTypeAsync(type, emoji)
+    recordTimeOffType(type, emoji)
     
     return emoji
 }
 
-async function recordTimeOffTypeAsync(type: string, defaultEmoji: string): Promise<void> {
+async function recordTimeOffType(type: string, defaultEmoji: string): Promise<void> {
     const storedTypes = await getStoredTimeOffTypes()
     const customEmojis = await getCustomEmojis()
     
@@ -189,8 +161,7 @@ async function clearDiscoveredTypes(): Promise<void> {
 }
 
 export { 
-    recordTimeOffTypeSync as recordTimeOffType, 
-    recordTimeOffTypeAsync,
+    recordTimeOffType,
     getAllDiscoveredTypes, 
     clearDiscoveredTypes, 
     getEmojiForType,

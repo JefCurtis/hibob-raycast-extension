@@ -1,7 +1,6 @@
 import { endOfMonth, formatDate, startOfMonth } from 'date-fns'
 import { fetch } from './fetch'
 import { HibobApi } from '../types'
-import { LocalStorage } from '@raycast/api'
 
 async function getTimeOffInfo(date: Date) {
     const startDate = startOfMonth(date)
@@ -16,8 +15,6 @@ async function getTimeOffInfo(date: Date) {
     })
     const url = `/timeoff/whosout?${params.toString()}`
     const response = await fetch<{ outs: HibobApi.TimeOff[] }>(url, cacheName)
-    LocalStorage.setItem(cacheName, JSON.stringify(response))
-
     return response.outs
 }
 

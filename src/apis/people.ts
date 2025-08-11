@@ -3,6 +3,7 @@ import { getDepartments } from './departments'
 import { getWorkTitles } from './work-titles'
 import { HibobApi } from '../types'
 import { fetch } from './fetch'
+import { recordTimeOffType, getEmojiForType } from '../utils/time-off-types'
 
 type PersonWithTimeOffs = {
     id: string
@@ -42,20 +43,46 @@ function parse(
 }
 
 async function fetchPeople(date: Date, department = 'All') {
-    const departments = await getDepartments()
-    const titles = await getWorkTitles()
-    const OOO = await getTimeOffInfo(date)
-    let people = await getPeople()
+    const [departments, titles, OOO, people] = await Promise.all([
+        getDepartments(),
+        getWorkTitles(),
+        getTimeOffInfo(date),
+        getPeople(),
+    ])
 
+    // Batch record all unique time-off types in background (performance optimization)
+    const uniqueTimeOffTypes = new Set(OOO.map(timeOff => timeOff.policyTypeDisplayName))
+    uniqueTimeOffTypes.forEach(type => {
+        const emoji = getEmojiForType(type)
+        recordTimeOffType(type, emoji).catch(err => 
+            console.warn('Failed to record time-off type:', type, err)
+        )
+    })
+
+    const deptById = new Map(departments.map((d) => [d.id, d.name]))
+    const titleById = new Map(titles.map((t) => [t.id, t.name]))
+
+    let filtered = people
     if (department !== 'All') {
-        people = people.filter((p) => {
-            const match = departments.find((d) => d.id === p.work.department)
-            return match?.name === department
-        })
+        filtered = people.filter((p) => deptById.get(p.work.department) === department)
     }
 
-    return people.map((person) => {
-        return parse(person, departments, titles, OOO)
+    return filtered.map((person) => {
+        const departmentName = deptById.get(person.work.department) || 'All'
+        const timeOffs = OOO.filter((o) => o.employeeId === person.id)
+        const titleName = titleById.get(person.work.title) || ''
+        const { id, displayName, surname, firstName, email, personal } = person
+        return {
+            id,
+            displayName,
+            surname,
+            firstName,
+            email,
+            title: titleName,
+            avatar: personal.avatar,
+            department: departmentName,
+            timeOffs,
+        }
     })
 }
 
